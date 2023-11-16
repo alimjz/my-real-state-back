@@ -1,5 +1,10 @@
 package com.mavaratech.myrealstate.service;
 
-public interface RealEstateHandler {
+import com.mavaratech.myrealstate.dto.SabtResponseDto;
 
+import java.util.List;
+import java.util.Map;
+
+public interface RealEstateHandler {
+    List<SabtResponseDto> getEstates(Map<String,String> header);
 }

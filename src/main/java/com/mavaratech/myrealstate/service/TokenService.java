@@ -7,7 +7,7 @@ import io.jsonwebtoken.security.SignatureException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ValidateTokenService {
+public class TokenService {
 
     public Jws<Claims> verifyToken(String token){
         try {

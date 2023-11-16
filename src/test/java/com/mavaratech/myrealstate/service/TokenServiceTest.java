@@ -10,7 +10,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 
 
-class ValidateTokenServiceTest {
+class TokenServiceTest {
 
     public static final String TEST_TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJtaW5pQXBwTmFtZSI6ImFwcDphZG1pbjphbWxhay1lLW1hbiIsInVzZXJuYW1lIjoiMTExMTExMTExMSIsInN1YiI6Im1pbmlBcHAiLCJpYXQiOjE3MDAwNzk5MDYsImV4cCI6MTcwMDk0MzkwNn0.BDlNWcNwXio5xMGCLW98yji7hhFPurx0OuVfYwA-ndrnGdn3_UJfNdwqRBR7g7VIen4z6HZXhBA5t6Awm8WkWg";
 

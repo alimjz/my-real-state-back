@@ -1,21 +1,23 @@
 package com.mavaratech.myrealstate.model;
 
-public class RealEstateDsdpRequest {
+import java.io.Serializable;
+
+public class RealEstateDsdpRequest implements Serializable {
     private String receiverCmsorganizationId;
     private String requestDateTime;
     private String nationalityCode;
-    private byte pageNumber;
-    private byte pageSize;
+    private int pageNumber;
+    private int pageSize;
     private boolean returnPagesCount;
     private boolean searchInCentralDB;
 
     public RealEstateDsdpRequest(String nationalityCode) {
         this("", "", nationalityCode,
-                (byte) 0, (byte) 250, true, true);
+                 0,  250, true, true);
     }
 
     public RealEstateDsdpRequest(String receiverCmsorganizationId, String requestDateTime, String nationalityCode,
-                                 byte pageNumber, byte pageSize, boolean returnPagesCount, boolean searchInCentralDB) {
+                                 int pageNumber, int pageSize, boolean returnPagesCount, boolean searchInCentralDB) {
         this.receiverCmsorganizationId = receiverCmsorganizationId;
         this.requestDateTime = requestDateTime;
         this.nationalityCode = nationalityCode;
@@ -49,7 +51,7 @@ public class RealEstateDsdpRequest {
         this.nationalityCode = nationalityCode;
     }
 
-    public byte getPageNumber() {
+    public int getPageNumber() {
         return pageNumber;
     }
 
@@ -57,7 +59,7 @@ public class RealEstateDsdpRequest {
         this.pageNumber = pageNumber;
     }
 
-    public byte getPageSize() {
+    public int getPageSize() {
         return pageSize;
     }
 
