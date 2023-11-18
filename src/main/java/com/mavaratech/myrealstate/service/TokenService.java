@@ -1,6 +1,7 @@
 package com.mavaratech.myrealstate.service;
 
 import com.mavaratech.myrealstate.config.RealEstateConstants;
+import com.mavaratech.myrealstate.exceptions.InvalidTokenException;
 import com.mavaratech.myrealstate.exceptions.RealStateException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
@@ -15,15 +16,15 @@ public class TokenService {
             return Jwts.parserBuilder().setSigningKey(RealEstateConstants.SECRET_KEY)
                     .build().parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
-            throw new RealStateException("Token is Expired.",e);
-        } catch (UnsupportedJwtException e) {
-            throw new RealStateException("UnsupportedTokenFormat",e);
+            throw new InvalidTokenException("Token is Expired.",e);
+        } catch (InvalidTokenException e) {
+            throw new InvalidTokenException("UnsupportedTokenFormat",e);
         } catch (MalformedJwtException e) {
-            throw new RealStateException("MalformedJWTException",e);
+            throw new InvalidTokenException("MalformedJWTException",e);
         } catch (SignatureException e) {
-            throw new RealStateException("Signiture Exception",e);
+            throw new InvalidTokenException("Signiture Exception",e);
         } catch (IllegalArgumentException e) {
-            throw new RealStateException("IllegalArgument Exception",e);
+            throw new InvalidTokenException("IllegalArgument Exception",e);
         }
     }
 

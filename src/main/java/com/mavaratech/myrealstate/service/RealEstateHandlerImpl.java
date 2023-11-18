@@ -2,6 +2,7 @@ package com.mavaratech.myrealstate.service;
 
 import com.mavaratech.myrealstate.dto.SabtResponseDto;
 import com.mavaratech.myrealstate.dto.ShareDto;
+import com.mavaratech.myrealstate.exceptions.InvalidTokenException;
 import com.mavaratech.myrealstate.exceptions.RealStateException;
 import com.mavaratech.myrealstate.model.response.BaseResponseRealEstates;
 import com.mavaratech.myrealstate.model.share.ShareEntity;
@@ -20,9 +21,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.mavaratech.myrealstate.config.RealEstateConstants.*;
+
 @Service
 public class RealEstateHandlerImpl implements RealEstateHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RealEstateHandlerImpl.class);
+
     private final InvokeRealEstateService invokeRealEstateService;
     private final TokenService tokenService;
     private final ShareEstateRepository shareEstateRepository;
@@ -42,7 +46,7 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
             String usernameClaim = TokenService.extractUsernameClaim(claimsJws);
             return invokeRealEstateService.getEstatesByNationalId(usernameClaim);
         }
-        return Collections.emptyList();
+        throw new InvalidTokenException(INVALID_TOKEN);
 
     }
 
@@ -64,9 +68,9 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
             shareEntity.setShareId(shareEntity.getShareId());
             shareEntity.setCreatedAt(LocalDateTime.now());
             shareEstateRepository.save(shareEntity);
-            return new BaseResponseRealEstates("0", "Successfully shared.");
+            return new BaseResponseRealEstates(SUCCESS_CODE, SUCCESSFULLY_SHARED);
         }
-        throw new RealStateException("Invalid Token.");
+        throw new InvalidTokenException(INVALID_TOKEN);
     }
 
     @Override
@@ -79,7 +83,7 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
                     , shareEntity.getUnitName(), shareEntity.getBasic(), shareEntity.getSecondary(), shareEntity.getPhoneNumber(),
                     shareEntity.getFromDate(), shareEntity.getToDate())).collect(Collectors.toList());
         }
-        throw new RealStateException("Claim verification failed.");
+        throw new InvalidTokenException(INVALID_TOKEN);
 
     }
 
@@ -93,7 +97,7 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
                     , shareEntity.getUnitName(), shareEntity.getBasic(), shareEntity.getSecondary(), shareEntity.getPhoneNumber(),
                     shareEntity.getFromDate(), shareEntity.getToDate())).collect(Collectors.toList());
         }
-        throw new RealStateException("Claim verification failed.");
+        throw new InvalidTokenException(INVALID_TOKEN);
     }
 
 }
