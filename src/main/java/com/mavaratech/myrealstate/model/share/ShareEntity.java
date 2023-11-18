@@ -1,7 +1,7 @@
 package com.mavaratech.myrealstate.model.share;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(schema = "my_estates",name = "tbl_share_estates")
@@ -24,16 +24,16 @@ public class ShareEntity {
     @Column(name = "PHONE_NUMBER")
     private String phoneNumber;
     @Column(name = "SHARE_FROM_DATE")
-    private Date fromDate;
+    private LocalDateTime fromDate;
     @Column(name = "SHARE_TO_DATE")
-    private Date toDate;
+    private LocalDateTime toDate;
     @Column(name = "CREATED_TIME")
-    private Date createdAt = new Date();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     public ShareEntity() {
     }
 
-    public ShareEntity(Long shareId, String shareFrom, String shareTo, boolean hasEstateElectronicNoteNo, String unitName, String basic, String secondary, String phoneNumber, Date fromDate, Date toDate) {
+    public ShareEntity(Long shareId, String shareFrom, String shareTo, boolean hasEstateElectronicNoteNo, String unitName, String basic, String secondary, String phoneNumber, LocalDateTime fromDate, LocalDateTime toDate) {
         this.shareId = shareId;
         this.shareFrom = shareFrom;
         this.shareTo = shareTo;
@@ -111,27 +111,27 @@ public class ShareEntity {
         this.phoneNumber = phoneNumber;
     }
 
-    public Date getFromDate() {
+    public LocalDateTime getFromDate() {
         return fromDate;
     }
 
-    public void setFromDate(Date fromDate) {
+    public void setFromDate(LocalDateTime fromDate) {
         this.fromDate = fromDate;
     }
 
-    public Date getToDate() {
+    public LocalDateTime getToDate() {
         return toDate;
     }
 
-    public void setToDate(Date toDate) {
+    public void setToDate(LocalDateTime toDate) {
         this.toDate = toDate;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 

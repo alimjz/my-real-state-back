@@ -1,6 +1,6 @@
 package com.mavaratech.myrealstate.model.share;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 public class ShareRequest {
     private String shareFrom;
@@ -11,8 +11,8 @@ public class ShareRequest {
     private String secondary;
     private String username;
     private String phoneNumber;
-    private Date fromDate;
-    private Date toDate;
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
 
     public String getShareFrom() {
         return shareFrom;
@@ -78,19 +78,19 @@ public class ShareRequest {
         this.phoneNumber = phoneNumber;
     }
 
-    public Date getFromDate() {
+    public LocalDateTime getFromDate() {
         return fromDate;
     }
 
-    public void setFromDate(Date fromDate) {
+    public void setFromDate(LocalDateTime fromDate) {
         this.fromDate = fromDate;
     }
 
-    public Date getToDate() {
+    public LocalDateTime getToDate() {
         return toDate;
     }
 
-    public void setToDate(Date toDate) {
+    public void setToDate(LocalDateTime toDate) {
         this.toDate = toDate;
     }
 }

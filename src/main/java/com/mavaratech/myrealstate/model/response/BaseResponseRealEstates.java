@@ -1,38 +1,31 @@
 package com.mavaratech.myrealstate.model.response;
 
-import com.mavaratech.myrealstate.dto.SabtResponseDto;
-
-import java.util.List;
-
 public class BaseResponseRealEstates {
     private String resultCode;
     private String resultDescription;
-    private List<SabtResponseDto> estates;
+
+    public BaseResponseRealEstates() {
+    }
+
+    public BaseResponseRealEstates(String resultCode, String resultDescription) {
+        this.resultCode = resultCode;
+        this.resultDescription = resultDescription;
+    }
 
     public String getResultCode() {
         return resultCode;
     }
 
-    public BaseResponseRealEstates setResultCode(String resultCode) {
+    public void setResultCode(String resultCode) {
         this.resultCode = resultCode;
-        return this;
     }
 
     public String getResultDescription() {
         return resultDescription;
     }
 
-    public BaseResponseRealEstates setResultDescription(String resultDescription) {
+    public void setResultDescription(String resultDescription) {
         this.resultDescription = resultDescription;
-        return this;
     }
 
-    public List<SabtResponseDto> getEstates() {
-        return estates;
-    }
-
-    public BaseResponseRealEstates setEstates(List<SabtResponseDto> estates) {
-        this.estates = estates;
-        return this;
-    }
 }

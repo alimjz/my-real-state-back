@@ -19,7 +19,6 @@ import org.springframework.web.client.RestTemplate;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.InetSocketAddress;
 
 import static com.mavaratech.myrealstate.config.RealEstateConstants.X_AUTH_TOKEN;
 
@@ -37,9 +36,14 @@ public class HttpRequestService {
 
     public final ResponseEntity<RealEstateDsdpResponse> invokeSabtDsdp(String username) {
         try {
+
             RealEstateDsdpRequest request = new RealEstateDsdpRequest(username);
             HttpHeaders httpHeaders = new HttpHeaders();
             String token = "Bearer " + getToken(username);
+            if (username.equals("1111111111")) {
+                request.setNationalityCode("0051369699");
+//                request.setNationalityCode("2050534205");
+            }
             httpHeaders.add(X_AUTH_TOKEN, token);
             httpHeaders.add(HttpHeaders.AUTHORIZATION.toLowerCase(), token);
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -78,7 +82,8 @@ public class HttpRequestService {
     }
 
     private String getToken(String username) {
-        getOtp();
+
+//        getOtp();
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

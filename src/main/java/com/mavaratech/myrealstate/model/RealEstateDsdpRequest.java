@@ -27,6 +27,7 @@ public class RealEstateDsdpRequest implements Serializable {
         this.searchInCentralDB = searchInCentralDB;
     }
 
+
     public String getReceiverCmsorganizationId() {
         return receiverCmsorganizationId;
     }

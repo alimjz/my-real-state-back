@@ -3,7 +3,6 @@ package com.mavaratech.myrealstate.service;
 import com.mavaratech.myrealstate.dto.SabtResponseDto;
 import com.mavaratech.myrealstate.exceptions.RealStateException;
 import com.mavaratech.myrealstate.model.RealEstateDsdpResponse;
-import com.mavaratech.myrealstate.model.State;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 

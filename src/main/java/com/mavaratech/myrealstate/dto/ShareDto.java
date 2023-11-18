@@ -1,10 +1,6 @@
 package com.mavaratech.myrealstate.dto;
 
-import org.aspectj.bridge.IMessage;
-
-import javax.annotation.Nonnull;
-import javax.persistence.Column;
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 public class ShareDto {
 
@@ -15,8 +11,22 @@ public class ShareDto {
     private String basic;
     private String secondary;
     private String phoneNumber;
-    private Date fromDate;
-    private Date toDate;
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
+
+    public ShareDto(){}
+
+    public ShareDto(String shareFrom, String shareTo, boolean hasEstateElectronicNoteNo, String unitName, String basic, String secondary, String phoneNumber, LocalDateTime fromDate, LocalDateTime toDate) {
+        this.shareFrom = shareFrom;
+        this.shareTo = shareTo;
+        this.hasEstateElectronicNoteNo = hasEstateElectronicNoteNo;
+        this.unitName = unitName;
+        this.basic = basic;
+        this.secondary = secondary;
+        this.phoneNumber = phoneNumber;
+        this.fromDate = fromDate;
+        this.toDate = toDate;
+    }
 
     public String getShareFrom() {
         return shareFrom;
@@ -74,19 +84,19 @@ public class ShareDto {
         this.phoneNumber = phoneNumber;
     }
 
-    public Date getFromDate() {
+    public LocalDateTime getFromDate() {
         return fromDate;
     }
 
-    public void setFromDate(Date fromDate) {
+    public void setFromDate(LocalDateTime fromDate) {
         this.fromDate = fromDate;
     }
 
-    public Date getToDate() {
+    public LocalDateTime getToDate() {
         return toDate;
     }
 
-    public void setToDate(Date toDate) {
+    public void setToDate(LocalDateTime toDate) {
         this.toDate = toDate;
     }
 }
