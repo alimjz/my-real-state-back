@@ -9,6 +9,24 @@ public class PropertySource {
     private String dsdpUrl;
     private String tokenUrl;
     private String otpUrl;
+    private String estateOwnersUrl;
+    private String confirmDocumentUrl;
+
+    public String getConfirmDocumentUrl() {
+        return confirmDocumentUrl;
+    }
+
+    public void setConfirmDocumentUrl(String confirmDocumentUrl) {
+        this.confirmDocumentUrl = confirmDocumentUrl;
+    }
+
+    public String getEstateOwnersUrl() {
+        return estateOwnersUrl;
+    }
+
+    public void setEstateOwnersUrl(String estateOwnersUrl) {
+        this.estateOwnersUrl = estateOwnersUrl;
+    }
 
     public String getOtpUrl() {
         return otpUrl;

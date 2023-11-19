@@ -1,0 +1,10 @@
+APP_MYESTATE_DSDPURL=https://orchestration.apps.lab.notary.ir:4443
+APP_MYESTATE_TOKENURL=https://auth-server-security-soc.apps.lab.notary.ir:4443
+APP_MYESTATE_OTPURL=https://auth-server-security-soc.apps.lab.notary.ir:4443
+SPRING_DATASOURCE_DRIVERCLASSNAME=org.postgresql.Driver
+SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_PASSWORD=3brGbHEV!gcKYH*m
+SPRING_DATASOURCE_URL=jdbc:postgresql://5.253.24.175:5432/miniapp
+SPRING_JPA_DATABASE=postgresql
+SPRING_JPA_HIBERNATE_DDLAUTO=update
+SERVER_PORT=8081

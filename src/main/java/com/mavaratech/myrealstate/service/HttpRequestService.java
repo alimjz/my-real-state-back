@@ -1,11 +1,9 @@
 package com.mavaratech.myrealstate.service;
 
 import com.mavaratech.myrealstate.config.PropertySource;
+import com.mavaratech.myrealstate.exceptions.HttpInvocationException;
 import com.mavaratech.myrealstate.exceptions.RealStateException;
-import com.mavaratech.myrealstate.model.OtpResponse;
-import com.mavaratech.myrealstate.model.RealEstateDsdpRequest;
-import com.mavaratech.myrealstate.model.RealEstateDsdpResponse;
-import com.mavaratech.myrealstate.model.TokenResponse;
+import com.mavaratech.myrealstate.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -20,6 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
+import static com.mavaratech.myrealstate.config.RealEstateConstants.HTTP_RESPONSE_FAILED;
 import static com.mavaratech.myrealstate.config.RealEstateConstants.X_AUTH_TOKEN;
 
 @Service
@@ -53,7 +52,7 @@ public class HttpRequestService {
 
             RealEstateDsdpRequest request = new RealEstateDsdpRequest(username);
             HttpHeaders httpHeaders = new HttpHeaders();
-            String token = "Bearer " + getToken(username);
+            String token = getToken(username);
             if (username.equals("1111111111")) {
                 request.setNationalityCode("0051369699");
 //                request.setNationalityCode("2050534205");
@@ -63,7 +62,7 @@ public class HttpRequestService {
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
             httpHeaders.setContentLength(calculateContentLength(request));
             HttpEntity<RealEstateDsdpRequest> requestEntity = new HttpEntity<>(request, httpHeaders);
-            return restTemplate.exchange(propertySource.getDsdpUrl(), HttpMethod.POST, requestEntity, RealEstateDsdpResponse.class);
+            return restTemplate.exchange(propertySource.getDsdpUrl()+"/api/call/GetEstateListByNationalityCode?ver=1", HttpMethod.POST, requestEntity, RealEstateDsdpResponse.class);
         } catch (RestClientException e) {
             LOGGER.error("Error in Calling SabtAsnad: {}", e.getMessage());
             throw new RealStateException("Error invoking SabtAsnad", e);
@@ -78,13 +77,10 @@ public class HttpRequestService {
         urlVariables.add("username", "0010391428");
         urlVariables.add("client_secret", "h2VW8S0hFmkLwrsQeygYoSkPwmPLTAr3");
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(urlVariables, httpHeaders);
-        restTemplate.exchange(propertySource.getOtpUrl(), HttpMethod.POST, entity, OtpResponse.class);
+        restTemplate.exchange(propertySource.getOtpUrl()+"/realms/superapp/otp/generate/username", HttpMethod.POST, entity, OtpResponse.class);
     }
 
     private String getToken(String username) {
-
-//        getOtp();
-
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -96,10 +92,39 @@ public class HttpRequestService {
         urlVariables.add("grant_type", "password");
 
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(urlVariables, httpHeaders);
-        ResponseEntity<TokenResponse> exchange = restTemplate.exchange(propertySource.getTokenUrl(), HttpMethod.POST, entity, TokenResponse.class);
+        ResponseEntity<TokenResponse> exchange = restTemplate.exchange(propertySource.getTokenUrl()+"/realms/superapp/protocol/openid-connect/token", HttpMethod.POST, entity, TokenResponse.class);
         if (exchange.getBody() != null && exchange.getStatusCode().is2xxSuccessful()) {
-            return exchange.getBody().getAccess_token();
+            return "Bearer " + exchange.getBody().getAccess_token();
         }
-        return "";
+        throw new HttpInvocationException(HTTP_RESPONSE_FAILED + exchange.getStatusCode());
+    }
+
+    public EstateOwnersDsdpResponse getEstateOwners(EstateOwnerRequest request, String username){
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        httpHeaders.add(X_AUTH_TOKEN,getToken(username));
+
+        HttpEntity<EstateOwnerRequest> entity = new HttpEntity<>(request,httpHeaders);
+        ResponseEntity<EstateOwnersDsdpResponse> exchange =
+                restTemplate.exchange(propertySource.getEstateOwnersUrl()+"/api/call/getEstateOwners?ver=1",
+                        HttpMethod.POST, entity, EstateOwnersDsdpResponse.class);
+        if (exchange.getStatusCode().is2xxSuccessful() && exchange.getBody() != null) {
+            return exchange.getBody();
+        }
+        throw new HttpInvocationException(HTTP_RESPONSE_FAILED + exchange.getStatusCode());
+    }
+
+    public ConfirmDocumentDsdpResponse confirmDocument(ConfirmDocumentDsdpRequest request, String username){
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        httpHeaders.add(X_AUTH_TOKEN,getToken(username));
+
+        HttpEntity<ConfirmDocumentDsdpRequest> entity = new HttpEntity<>(request, httpHeaders);
+        ResponseEntity<ConfirmDocumentDsdpResponse> exchange = restTemplate.exchange(propertySource.getConfirmDocumentUrl() + "/api/call/confirmDocument?ver=1",
+                HttpMethod.POST, entity, ConfirmDocumentDsdpResponse.class);
+        if (exchange.getStatusCode().is2xxSuccessful() && exchange.getBody() != null){
+            return exchange.getBody();
+        }
+        throw new HttpInvocationException(HTTP_RESPONSE_FAILED + exchange.getStatusCode());
     }
 }

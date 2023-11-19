@@ -17,40 +17,18 @@ import java.util.concurrent.TimeUnit;
 public class CacheConfiguration {
 
     @Bean("shareFromCache")
-    public Cache<String, List<ShareEntity>> shareFromCache(
-            @Qualifier("loaderCacheFrom") CacheLoader<String, List<ShareEntity>> loaderCacheFrom) {
+    public Cache<String, List<ShareEntity>> shareFromCache() {
         return CacheBuilder.newBuilder()
-                .refreshAfterWrite(Duration.ofSeconds(60))
                 .expireAfterAccess(30, TimeUnit.SECONDS)
-                .build(loaderCacheFrom);
+                .build();
     }
 
     @Bean("shareToCache")
-    public Cache<String, List<ShareEntity>> shareToCache(
-            @Qualifier("loaderCacheTo") CacheLoader<String, List<ShareEntity>> loaderCacheTo) {
+    public Cache<String, List<ShareEntity>> shareToCache() {
         return CacheBuilder.newBuilder()
-                .refreshAfterWrite(Duration.ofSeconds(60))
                 .expireAfterAccess(30, TimeUnit.SECONDS)
-                .build(loaderCacheTo);
+                .build();
     }
 
-    @Bean("loaderCacheFrom")
-    CacheLoader<String, List<ShareEntity>> loaderCacheFrom(ShareEstateRepository repository) {
-        return new CacheLoader<>() {
-            @Override
-            public List<ShareEntity> load(String key) throws Exception {
-                return repository.findAllByShareFrom(key);
-            }
-        };
-    }
 
-    @Bean("loaderCacheTo")
-    CacheLoader<String, List<ShareEntity>> loaderCacheTo(ShareEstateRepository repository) {
-        return new CacheLoader<>() {
-            @Override
-            public List<ShareEntity> load(String key) throws Exception {
-                return repository.findAllByShareTo(key);
-            }
-        };
-    }
 }

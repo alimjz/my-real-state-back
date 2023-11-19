@@ -1,11 +1,13 @@
 package com.mavaratech.myrealstate.service;
 
 import com.mavaratech.myrealstate.dto.SabtResponseDto;
+import com.mavaratech.myrealstate.exceptions.HttpInvocationException;
 import com.mavaratech.myrealstate.exceptions.RealStateException;
-import com.mavaratech.myrealstate.model.RealEstateDsdpResponse;
+import com.mavaratech.myrealstate.model.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +33,18 @@ public class InvokeRealEstateService {
                     .setHasEstateElectronicNoteNo(state.isHasEstateElectronicNoteNo())
                     .setUnitName(state.getUnitName())).collect(Collectors.toList());
         }
-        throw new RealStateException("Sabt API Didn't response");
+        throw new HttpInvocationException("Sabt API Didn't respond");
+    }
+
+    public List<Owners> getEstateOwner(EstateOwnerRequest request,String username){
+        EstateOwnersDsdpResponse estateOwners = httpRequestService.getEstateOwners(request, username);
+        if (estateOwners.getSuccessful().equals("true")) {
+            return estateOwners.getOwners();
+        }
+        return Collections.emptyList();
+    }
+
+    public ConfirmDocumentDsdpResponse confirmDocumentation(ConfirmDocumentDsdpRequest request, String username) {
+        return httpRequestService.confirmDocument(request, username);
     }
 }

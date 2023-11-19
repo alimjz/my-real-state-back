@@ -4,6 +4,10 @@ import com.google.common.cache.Cache;
 import com.mavaratech.myrealstate.dto.SabtResponseDto;
 import com.mavaratech.myrealstate.dto.ShareDto;
 import com.mavaratech.myrealstate.exceptions.InvalidTokenException;
+import com.mavaratech.myrealstate.model.ConfirmDocumentDsdpRequest;
+import com.mavaratech.myrealstate.model.ConfirmDocumentDsdpResponse;
+import com.mavaratech.myrealstate.model.EstateOwnerRequest;
+import com.mavaratech.myrealstate.model.Owners;
 import com.mavaratech.myrealstate.model.response.BaseResponseRealEstates;
 import com.mavaratech.myrealstate.model.share.ShareEntity;
 import com.mavaratech.myrealstate.model.share.ShareRequest;
@@ -19,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.mavaratech.myrealstate.config.RealEstateConstants.*;
@@ -26,6 +31,7 @@ import static com.mavaratech.myrealstate.config.RealEstateConstants.*;
 @Service
 public class RealEstateHandlerImpl implements RealEstateHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RealEstateHandlerImpl.class);
+    public static final String RECORD_ALREADY_EXIST = "Record Already Exist.";
 
     private final InvokeRealEstateService invokeRealEstateService;
     private final TokenService tokenService;
@@ -62,23 +68,29 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
     public BaseResponseRealEstates shareEstates(ShareRequest shareRequest, Map<String, String> headers) {
         String token = headers.get(HttpHeaders.AUTHORIZATION.toLowerCase());
         Jws<Claims> claimsJws = tokenService.verifyToken(token);
-        if (claimsJws != null && !claimsJws.getBody().isEmpty()) {
-            ShareEntity shareEntity = new ShareEntity();
-            shareEntity.setBasic(shareRequest.getBasic());
-            shareEntity.setSecondary(shareRequest.getSecondary());
-            shareEntity.setShareFrom(shareRequest.getShareFrom());
-            shareEntity.setShareTo(shareRequest.getShareTo());
-            shareEntity.setFromDate(shareRequest.getFromDate());
-            shareEntity.setToDate(shareRequest.getToDate());
-            shareEntity.setPhoneNumber(shareRequest.getPhoneNumber());
-            shareEntity.setHasEstateElectronicNoteNo(shareRequest.isHasEstateElectronicNoteNo());
-            shareEntity.setUnitName(shareRequest.getUnitName());
-            shareEntity.setShareId(shareEntity.getShareId());
-            shareEntity.setCreatedAt(LocalDateTime.now());
-            shareEstateRepository.save(shareEntity);
-            return new BaseResponseRealEstates(SUCCESS_CODE, SUCCESSFULLY_SHARED);
+        String userFrom = TokenService.extractUsernameClaim(claimsJws);
+
+        Optional<ShareEntity> byShareFromAndShareToAndBasic = shareEstateRepository.findByShareFromAndShareToAndBasic(userFrom, shareRequest.getShareTo(), shareRequest.getBasic());
+        if (byShareFromAndShareToAndBasic.isPresent()) {
+            BaseResponseRealEstates baseResponseRealEstates = new BaseResponseRealEstates();
+            baseResponseRealEstates.setResultCode(ALREADY_EXIST);
+            baseResponseRealEstates.setResultDescription(RECORD_ALREADY_EXIST);
+            return baseResponseRealEstates;
         }
-        throw new InvalidTokenException(INVALID_TOKEN);
+        ShareEntity shareEntity = new ShareEntity();
+        shareEntity.setBasic(shareRequest.getBasic());
+        shareEntity.setSecondary(shareRequest.getSecondary());
+        shareEntity.setShareFrom(userFrom);
+        shareEntity.setShareTo(shareRequest.getShareTo());
+        shareEntity.setFromDate(shareRequest.getFromDate());
+        shareEntity.setToDate(shareRequest.getToDate());
+        shareEntity.setPhoneNumber(shareRequest.getPhoneNumber());
+        shareEntity.setHasEstateElectronicNoteNo(shareRequest.isHasEstateElectronicNoteNo());
+        shareEntity.setUnitName(shareRequest.getUnitName());
+        shareEntity.setShareId(shareEntity.getShareId());
+        shareEntity.setCreatedAt(LocalDateTime.now());
+        shareEstateRepository.save(shareEntity);
+        return new BaseResponseRealEstates(SUCCESS_CODE, SUCCESSFULLY_SHARED);
     }
 
     @Override
@@ -89,7 +101,8 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
         if (claimsJws != null && !claimsJws.getBody().isEmpty()) {
             allByShareFrom = shareFromCache.getIfPresent(username);
             if (allByShareFrom == null) {
-                allByShareFrom = shareEstateRepository.findAllByShareFrom(username);
+                LOGGER.info("Current Time : {}", LocalDateTime.now());
+                allByShareFrom = shareEstateRepository.findAllByShareFromAndToDateAfterOrderByToDateDesc(username, LocalDateTime.now());
                 shareFromCache.put(username, allByShareFrom);
             }
             return allByShareFrom.stream().map(shareEntity -> new ShareDto(shareEntity.getShareFrom(), shareEntity.getShareTo(), shareEntity.isHasEstateElectronicNoteNo()
@@ -108,7 +121,7 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
         if (claimsJws != null && !claimsJws.getBody().isEmpty()) {
             allByShareFrom = shareToCache.getIfPresent(username);
             if (allByShareFrom == null) {
-                allByShareFrom = shareEstateRepository.findAllByShareTo(username);
+                allByShareFrom = shareEstateRepository.findAllByShareToAndToDateAfterOrderByToDateDesc(username, LocalDateTime.now());
                 shareToCache.put(username, allByShareFrom);
             }
             return allByShareFrom.stream().map(shareEntity -> new ShareDto(shareEntity.getShareFrom(), shareEntity.getShareTo(), shareEntity.isHasEstateElectronicNoteNo()
@@ -118,4 +131,17 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
         throw new InvalidTokenException(INVALID_TOKEN);
     }
 
+    @Override
+    public List<Owners> getEstateOwners(EstateOwnerRequest request, Map<String, String> headers) {
+        String token = headers.get(HttpHeaders.AUTHORIZATION.toLowerCase());
+        Jws<Claims> claimsJws = tokenService.verifyToken(token);
+        return invokeRealEstateService.getEstateOwner(request, TokenService.extractUsernameClaim(claimsJws));
+    }
+
+    @Override
+    public ConfirmDocumentDsdpResponse confirmDocument(ConfirmDocumentDsdpRequest request, Map<String, String> headers) {
+        String token = headers.get(HttpHeaders.AUTHORIZATION.toLowerCase());
+        Jws<Claims> claimsJws = tokenService.verifyToken(token);
+        return invokeRealEstateService.confirmDocumentation(request, TokenService.extractUsernameClaim(claimsJws));
+    }
 }

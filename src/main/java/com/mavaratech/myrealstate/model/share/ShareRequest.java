@@ -1,5 +1,7 @@
 package com.mavaratech.myrealstate.model.share;
 
+import com.mavaratech.myrealstate.validation.FutureLocalDateTime;
+
 import java.time.LocalDateTime;
 
 public class ShareRequest {
@@ -12,6 +14,7 @@ public class ShareRequest {
     private String username;
     private String phoneNumber;
     private LocalDateTime fromDate;
+    @FutureLocalDateTime(message = "To Date Should Be Greated Than Current Time.")
     private LocalDateTime toDate;
 
     public String getShareFrom() {
