@@ -52,6 +52,7 @@ public class TokenResponse {
     public void setToken_type(String token_type) {
         this.token_type = token_type;
     }
+
     @JsonProperty("not-before-policy")
     public String getNotbeforepolicy() {
         return notbeforepolicy;

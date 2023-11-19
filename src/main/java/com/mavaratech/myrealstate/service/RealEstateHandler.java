@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 public interface RealEstateHandler {
-    List<SabtResponseDto> getEstates(Map<String,String> header);
+    List<SabtResponseDto> getEstates(Map<String, String> header);
 
-    BaseResponseRealEstates shareEstates(ShareRequest shareRequest, Map<String,String>headers);
+    BaseResponseRealEstates shareEstates(ShareRequest shareRequest, Map<String, String> headers);
 
-    List<ShareDto> querySharedRecordByOwner(String username,Map<String,String>headers);
+    List<ShareDto> querySharedRecordByOwner(String username, Map<String, String> headers);
 
-    List<ShareDto> querySharedRecordToMe(String username,Map<String,String>headers);
+    List<ShareDto> querySharedRecordToMe(String username, Map<String, String> headers);
 }

@@ -13,7 +13,7 @@ public class RealEstateDsdpRequest implements Serializable {
 
     public RealEstateDsdpRequest(String nationalityCode) {
         this("", "", nationalityCode,
-                 0,  250, true, true);
+                0, 250, true, true);
     }
 
     public RealEstateDsdpRequest(String receiverCmsorganizationId, String requestDateTime, String nationalityCode,

@@ -1,6 +1,6 @@
 package com.mavaratech.myrealstate.exceptions;
 
-public class RealStateException extends RuntimeException{
+public class RealStateException extends RuntimeException {
 
     public RealStateException(String message) {
         super(message);

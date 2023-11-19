@@ -44,12 +44,12 @@ public class RealEstateController {
     @PostMapping("/share")
     public ResponseEntity<BaseResponseRealEstates> shareRealEstates(@RequestHeader Map<String, String> headers,
                                                                     @RequestBody ShareRequest shareRequest) {
-        return ResponseEntity.ok(realEstateHandler.shareEstates(shareRequest,headers));
+        return ResponseEntity.ok(realEstateHandler.shareEstates(shareRequest, headers));
     }
 
     @GetMapping("/share/from/{username}")
-    public ResponseEntity<BaseResponseRealEstates> querySharedEstates(@RequestHeader Map<String, String> headers,@PathVariable("username") String username) {
-        List<ShareDto> shareDtos = realEstateHandler.querySharedRecordByOwner(username,headers);
+    public ResponseEntity<BaseResponseRealEstates> querySharedEstates(@RequestHeader Map<String, String> headers, @PathVariable("username") String username) {
+        List<ShareDto> shareDtos = realEstateHandler.querySharedRecordByOwner(username, headers);
         QueryShareEstatesResponse queryShareEstatesResponse = new QueryShareEstatesResponse();
         queryShareEstatesResponse.setResultCode("0");
         queryShareEstatesResponse.setResultDescription("Successfully shared.");
@@ -58,8 +58,8 @@ public class RealEstateController {
     }
 
     @GetMapping("/share/to/{username}")
-    public ResponseEntity<BaseResponseRealEstates> querySharedEstatesToMe(@RequestHeader Map<String, String> headers,@PathVariable("username") String username) {
-        List<ShareDto> shareDtos = realEstateHandler.querySharedRecordToMe(username,headers);
+    public ResponseEntity<BaseResponseRealEstates> querySharedEstatesToMe(@RequestHeader Map<String, String> headers, @PathVariable("username") String username) {
+        List<ShareDto> shareDtos = realEstateHandler.querySharedRecordToMe(username, headers);
         QueryShareEstatesResponse queryShareEstatesResponse = new QueryShareEstatesResponse();
         queryShareEstatesResponse.setResultCode("0");
         queryShareEstatesResponse.setResultDescription("Successfully shared.");

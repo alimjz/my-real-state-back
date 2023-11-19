@@ -14,7 +14,8 @@ public class ShareDto {
     private LocalDateTime fromDate;
     private LocalDateTime toDate;
 
-    public ShareDto(){}
+    public ShareDto() {
+    }
 
     public ShareDto(String shareFrom, String shareTo, boolean hasEstateElectronicNoteNo, String unitName, String basic, String secondary, String phoneNumber, LocalDateTime fromDate, LocalDateTime toDate) {
         this.shareFrom = shareFrom;

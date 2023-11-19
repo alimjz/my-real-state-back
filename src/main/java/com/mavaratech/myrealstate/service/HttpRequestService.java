@@ -34,6 +34,20 @@ public class HttpRequestService {
         this.propertySource = propertySource;
     }
 
+    private static long calculateContentLength(RealEstateDsdpRequest request) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = null;
+        try {
+            objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            objectOutputStream.writeObject(request);
+            objectOutputStream.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return byteArrayOutputStream.toByteArray().length;
+    }
+
     public final ResponseEntity<RealEstateDsdpResponse> invokeSabtDsdp(String username) {
         try {
 
@@ -52,22 +66,8 @@ public class HttpRequestService {
             return restTemplate.exchange(propertySource.getDsdpUrl(), HttpMethod.POST, requestEntity, RealEstateDsdpResponse.class);
         } catch (RestClientException e) {
             LOGGER.error("Error in Calling SabtAsnad: {}", e.getMessage());
-            throw new RealStateException("Error invoking SabtAsnad",e);
+            throw new RealStateException("Error invoking SabtAsnad", e);
         }
-    }
-
-    private static long calculateContentLength(RealEstateDsdpRequest request) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = null;
-        try {
-            objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-            objectOutputStream.writeObject(request);
-            objectOutputStream.flush();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return byteArrayOutputStream.toByteArray().length;
     }
 
     private void getOtp() {

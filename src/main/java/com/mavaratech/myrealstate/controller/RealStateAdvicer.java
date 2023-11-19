@@ -1,8 +1,6 @@
 package com.mavaratech.myrealstate.controller;
 
 import com.mavaratech.myrealstate.exceptions.InvalidTokenException;
-import com.mavaratech.myrealstate.model.response.BaseResponseRealEstates;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

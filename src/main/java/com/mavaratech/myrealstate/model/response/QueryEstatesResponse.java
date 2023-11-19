@@ -4,7 +4,7 @@ import com.mavaratech.myrealstate.dto.SabtResponseDto;
 
 import java.util.List;
 
-public class QueryEstatesResponse extends BaseResponseRealEstates{
+public class QueryEstatesResponse extends BaseResponseRealEstates {
 
     private List<SabtResponseDto> estates;
 

@@ -12,18 +12,17 @@ import java.util.stream.Collectors;
 @Service
 public class InvokeRealEstateService {
 
-
     private final HttpRequestService httpRequestService;
 
     public InvokeRealEstateService(HttpRequestService httpRequestService) {
         this.httpRequestService = httpRequestService;
     }
 
-    public final List<SabtResponseDto> getEstatesByNationalId(String username){
+    public final List<SabtResponseDto> getEstatesByNationalId(String username) {
         ResponseEntity<RealEstateDsdpResponse> realStateDsdpResponseResponseEntity =
                 httpRequestService.invokeSabtDsdp(username);
         if (realStateDsdpResponseResponseEntity.getBody() != null &&
-                realStateDsdpResponseResponseEntity.getStatusCode().is2xxSuccessful()){
+                realStateDsdpResponseResponseEntity.getStatusCode().is2xxSuccessful()) {
 
             RealEstateDsdpResponse body = realStateDsdpResponseResponseEntity.getBody();
 

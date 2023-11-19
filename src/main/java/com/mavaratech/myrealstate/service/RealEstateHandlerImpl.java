@@ -1,9 +1,9 @@
 package com.mavaratech.myrealstate.service;
 
+import com.google.common.cache.Cache;
 import com.mavaratech.myrealstate.dto.SabtResponseDto;
 import com.mavaratech.myrealstate.dto.ShareDto;
 import com.mavaratech.myrealstate.exceptions.InvalidTokenException;
-import com.mavaratech.myrealstate.exceptions.RealStateException;
 import com.mavaratech.myrealstate.model.response.BaseResponseRealEstates;
 import com.mavaratech.myrealstate.model.share.ShareEntity;
 import com.mavaratech.myrealstate.model.share.ShareRequest;
@@ -12,11 +12,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,12 +30,20 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
     private final InvokeRealEstateService invokeRealEstateService;
     private final TokenService tokenService;
     private final ShareEstateRepository shareEstateRepository;
+    private final Cache<String, List<ShareEntity>> shareFromCache;
+    private final Cache<String, List<ShareEntity>> shareToCache;
 
 
-    public RealEstateHandlerImpl(InvokeRealEstateService invokeRealEstateService, TokenService tokenService, ShareEstateRepository shareEstateRepository) {
+    public RealEstateHandlerImpl(InvokeRealEstateService invokeRealEstateService,
+                                 TokenService tokenService,
+                                 ShareEstateRepository shareEstateRepository,
+                                 @Qualifier("shareFromCache") Cache<String, List<ShareEntity>> shareFromCache,
+                                 @Qualifier("shareToCache") Cache<String, List<ShareEntity>> shareToCache) {
         this.invokeRealEstateService = invokeRealEstateService;
         this.tokenService = tokenService;
         this.shareEstateRepository = shareEstateRepository;
+        this.shareFromCache = shareFromCache;
+        this.shareToCache = shareToCache;
     }
 
     public List<SabtResponseDto> getEstates(Map<String, String> header) {
@@ -77,8 +85,13 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
     public List<ShareDto> querySharedRecordByOwner(String username, Map<String, String> headers) {
         String token = headers.get(HttpHeaders.AUTHORIZATION.toLowerCase());
         Jws<Claims> claimsJws = tokenService.verifyToken(token);
+        List<ShareEntity> allByShareFrom;
         if (claimsJws != null && !claimsJws.getBody().isEmpty()) {
-            List<ShareEntity> allByShareFrom = shareEstateRepository.findAllByShareFrom(username);
+            allByShareFrom = shareFromCache.getIfPresent(username);
+            if (allByShareFrom == null) {
+                allByShareFrom = shareEstateRepository.findAllByShareFrom(username);
+                shareFromCache.put(username, allByShareFrom);
+            }
             return allByShareFrom.stream().map(shareEntity -> new ShareDto(shareEntity.getShareFrom(), shareEntity.getShareTo(), shareEntity.isHasEstateElectronicNoteNo()
                     , shareEntity.getUnitName(), shareEntity.getBasic(), shareEntity.getSecondary(), shareEntity.getPhoneNumber(),
                     shareEntity.getFromDate(), shareEntity.getToDate())).collect(Collectors.toList());
@@ -91,8 +104,13 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
     public List<ShareDto> querySharedRecordToMe(String username, Map<String, String> headers) {
         String token = headers.get(HttpHeaders.AUTHORIZATION.toLowerCase());
         Jws<Claims> claimsJws = tokenService.verifyToken(token);
+        List<ShareEntity> allByShareFrom;
         if (claimsJws != null && !claimsJws.getBody().isEmpty()) {
-            List<ShareEntity> allByShareFrom = shareEstateRepository.findAllByShareTo(username);
+            allByShareFrom = shareToCache.getIfPresent(username);
+            if (allByShareFrom == null) {
+                allByShareFrom = shareEstateRepository.findAllByShareTo(username);
+                shareToCache.put(username, allByShareFrom);
+            }
             return allByShareFrom.stream().map(shareEntity -> new ShareDto(shareEntity.getShareFrom(), shareEntity.getShareTo(), shareEntity.isHasEstateElectronicNoteNo()
                     , shareEntity.getUnitName(), shareEntity.getBasic(), shareEntity.getSecondary(), shareEntity.getPhoneNumber(),
                     shareEntity.getFromDate(), shareEntity.getToDate())).collect(Collectors.toList());

@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(schema = "my_estates",name = "tbl_share_estates")
+@Table(schema = "my_estates", name = "tbl_share_estates")
 public class ShareEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
