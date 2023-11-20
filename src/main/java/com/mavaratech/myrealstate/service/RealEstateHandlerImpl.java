@@ -70,7 +70,9 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
         Jws<Claims> claimsJws = tokenService.verifyToken(token);
         String userFrom = TokenService.extractUsernameClaim(claimsJws);
 
-        Optional<ShareEntity> byShareFromAndShareToAndBasic = shareEstateRepository.findByShareFromAndShareToAndBasic(userFrom, shareRequest.getShareTo(), shareRequest.getBasic());
+        Optional<ShareEntity> byShareFromAndShareToAndBasic =
+                shareEstateRepository
+                        .findByShareFromAndShareToAndBasicAndToDateAfter(userFrom, shareRequest.getShareTo(), shareRequest.getBasic(),LocalDateTime.now());
         if (byShareFromAndShareToAndBasic.isPresent()) {
             BaseResponseRealEstates baseResponseRealEstates = new BaseResponseRealEstates();
             baseResponseRealEstates.setResultCode(ALREADY_EXIST);

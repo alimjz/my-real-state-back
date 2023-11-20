@@ -15,5 +15,5 @@ public interface ShareEstateRepository extends CrudRepository<ShareEntity, Long>
 
     List<ShareEntity> findAllByShareToAndToDateAfterOrderByToDateDesc(String username, LocalDateTime now);
 
-    Optional<ShareEntity> findByShareFromAndShareToAndBasic(String userfrom,String userTo,String basic);
+    Optional<ShareEntity> findByShareFromAndShareToAndBasicAndToDateAfter(String userfrom,String userTo,String basic,LocalDateTime now);
 }
