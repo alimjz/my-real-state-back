@@ -10,13 +10,14 @@ import com.mavaratech.myrealstate.model.response.*;
 import com.mavaratech.myrealstate.model.share.ShareRequest;
 import com.mavaratech.myrealstate.service.RealEstateHandler;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static com.mavaratech.myrealstate.config.RealEstateConstants.*;
 
 @RestController
 @RequestMapping("/api/v1/estate")
@@ -62,7 +63,7 @@ public class RealEstateController {
             return ResponseEntity.ok(queryShareEstatesResponse);
         }
         queryShareEstatesResponse.setResultCode("1");
-        queryShareEstatesResponse.setResultDescription("No Record Found.");
+        queryShareEstatesResponse.setResultDescription(NO_RECORD_FOUND);
         queryShareEstatesResponse.setShareDtos(shareDtos);
         return ResponseEntity.ok(queryShareEstatesResponse);
     }
@@ -73,14 +74,14 @@ public class RealEstateController {
         List<ShareDto> shareDtos = realEstateHandler.querySharedRecordToMe(username, headers);
         QueryShareEstatesResponse queryShareEstatesResponse = new QueryShareEstatesResponse();
         if (!shareDtos.isEmpty()) {
-            queryShareEstatesResponse.setResultCode("0");
-            queryShareEstatesResponse.setResultDescription("Successfully shared.");
+            queryShareEstatesResponse.setResultCode(SUCCESS_CODE);
+            queryShareEstatesResponse.setResultDescription(SUCCESSFULL);
             queryShareEstatesResponse.setShareDtos(shareDtos);
             return ResponseEntity.ok(queryShareEstatesResponse);
         }
         else {
-            queryShareEstatesResponse.setResultCode("1");
-            queryShareEstatesResponse.setResultDescription("No Record Found.");
+            queryShareEstatesResponse.setResultCode(NOT_FOUND);
+            queryShareEstatesResponse.setResultDescription(NO_RECORD_FOUND);
             queryShareEstatesResponse.setShareDtos(shareDtos);
             return ResponseEntity.ok(queryShareEstatesResponse);
         }
@@ -93,17 +94,17 @@ public class RealEstateController {
         List<Owners> estateOwners = realEstateHandler.getEstateOwners(request, headers);
 
         if (estateOwners.isEmpty()) {
-            return ResponseEntity.ok(new EstateOwnerResponseDto("1","No Owner Found",Collections.emptyList()));
+            return ResponseEntity.ok(new EstateOwnerResponseDto(NOT_FOUND, NO_OWNER_FOUND,Collections.emptyList()));
         }
-        return ResponseEntity.ok(new EstateOwnerResponseDto("0","Successfull.",estateOwners));
+        return ResponseEntity.ok(new EstateOwnerResponseDto(SUCCESS_CODE, SUCCESSFULL,estateOwners));
     }
 
     @GetMapping("/confirm")
     public ResponseEntity<ConfirmDocumentBaseResponse> confirm(@RequestHeader Map<String, String> headers,
                                                                @RequestBody ConfirmDocumentDsdpRequest request) {
         ConfirmDocumentDsdpResponse confirmDocumentDsdpResponse = realEstateHandler.confirmDocument(request, headers);
-        return ResponseEntity.ok(new ConfirmDocumentBaseResponse("0",
-                "Successfull.",
+        return ResponseEntity.ok(new ConfirmDocumentBaseResponse(SUCCESS_CODE,
+                SUCCESSFULL,
                 confirmDocumentDsdpResponse));
     }
 }

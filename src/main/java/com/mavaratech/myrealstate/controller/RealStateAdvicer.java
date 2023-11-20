@@ -15,13 +15,17 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.mavaratech.myrealstate.config.RealEstateConstants.*;
+
 @RestControllerAdvice
 public class RealStateAdvicer{
+
+
 
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<BadRequestResponse> handleConflict(RuntimeException ex, WebRequest request) {
         BadRequestResponse unAuthorized = new BadRequestResponse();
-        unAuthorized.setResultCode("3");
+        unAuthorized.setResultCode(UNAUTHORIZED);
         unAuthorized.setResultDescription(ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(unAuthorized);
     }
@@ -29,8 +33,8 @@ public class RealStateAdvicer{
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<BaseResponseRealEstates> handleValidationExceptions(MethodArgumentNotValidException ex) {
         BadRequestResponse badRequestResponse = new BadRequestResponse();
-        badRequestResponse.setResultCode("4");
-        badRequestResponse.setResultDescription("Invalid Inputs.");
+        badRequestResponse.setResultCode(BAD_REQUEST);
+        badRequestResponse.setResultDescription(INVALID_INPUTS);
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
