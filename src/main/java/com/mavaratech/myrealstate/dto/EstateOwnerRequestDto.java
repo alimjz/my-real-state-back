@@ -1,10 +1,10 @@
-package com.mavaratech.myrealstate.model;
+package com.mavaratech.myrealstate.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy.class)
-public class EstateOwnerRequest {
+public class EstateOwnerRequestDto {
     private String receiverCmsorganizationId;
     private String requestDateTime;
     private String basic;
@@ -13,6 +13,15 @@ public class EstateOwnerRequest {
     private String subSectionSSAACode;
     private String unitId;
     private Boolean containCessionInfoInResult;
+    private Boolean filter;
+
+    public Boolean getFilter() {
+        return filter;
+    }
+
+    public void setFilter(Boolean filter) {
+        this.filter = filter;
+    }
 
     public String getReceiverCmsorganizationId() {
         return receiverCmsorganizationId;

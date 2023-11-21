@@ -6,7 +6,7 @@ import com.mavaratech.myrealstate.dto.ShareDto;
 import com.mavaratech.myrealstate.exceptions.InvalidTokenException;
 import com.mavaratech.myrealstate.model.ConfirmDocumentDsdpRequest;
 import com.mavaratech.myrealstate.model.ConfirmDocumentDsdpResponse;
-import com.mavaratech.myrealstate.model.EstateOwnerRequest;
+import com.mavaratech.myrealstate.dto.EstateOwnerRequestDto;
 import com.mavaratech.myrealstate.model.Owners;
 import com.mavaratech.myrealstate.model.response.BaseResponseRealEstates;
 import com.mavaratech.myrealstate.model.share.ShareEntity;
@@ -31,7 +31,6 @@ import static com.mavaratech.myrealstate.config.RealEstateConstants.*;
 @Service
 public class RealEstateHandlerImpl implements RealEstateHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RealEstateHandlerImpl.class);
-    public static final String RECORD_ALREADY_EXIST = "Record Already Exist.";
 
     private final InvokeRealEstateService invokeRealEstateService;
     private final TokenService tokenService;
@@ -96,11 +95,12 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
     }
 
     @Override
-    public List<ShareDto> querySharedRecordByOwner(String username, Map<String, String> headers) {
+    public List<ShareDto> querySharedRecordByOwner(Map<String, String> headers) {
         String token = headers.get(HttpHeaders.AUTHORIZATION.toLowerCase());
         Jws<Claims> claimsJws = tokenService.verifyToken(token);
+        String username = TokenService.extractUsernameClaim(claimsJws);
         List<ShareEntity> allByShareFrom;
-        if (claimsJws != null && !claimsJws.getBody().isEmpty()) {
+        if (!claimsJws.getBody().isEmpty()) {
             allByShareFrom = shareFromCache.getIfPresent(username);
             if (allByShareFrom == null) {
                 LOGGER.info("Current Time : {}", LocalDateTime.now());
@@ -116,11 +116,12 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
     }
 
     @Override
-    public List<ShareDto> querySharedRecordToMe(String username, Map<String, String> headers) {
+    public List<ShareDto> querySharedRecordToMe( Map<String, String> headers) {
         String token = headers.get(HttpHeaders.AUTHORIZATION.toLowerCase());
         Jws<Claims> claimsJws = tokenService.verifyToken(token);
+        String username = TokenService.extractUsernameClaim(claimsJws);
         List<ShareEntity> allByShareFrom;
-        if (claimsJws != null && !claimsJws.getBody().isEmpty()) {
+        if (!claimsJws.getBody().isEmpty()) {
             allByShareFrom = shareToCache.getIfPresent(username);
             if (allByShareFrom == null) {
                 allByShareFrom = shareEstateRepository.findAllByShareToAndToDateAfterOrderByToDateDesc(username, LocalDateTime.now());
@@ -134,10 +135,11 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
     }
 
     @Override
-    public List<Owners> getEstateOwners(EstateOwnerRequest request, Map<String, String> headers) {
+    public List<Owners> getEstateOwners(EstateOwnerRequestDto request, Map<String, String> headers) {
         String token = headers.get(HttpHeaders.AUTHORIZATION.toLowerCase());
         Jws<Claims> claimsJws = tokenService.verifyToken(token);
-        return invokeRealEstateService.getEstateOwner(request, TokenService.extractUsernameClaim(claimsJws));
+        String username = TokenService.extractUsernameClaim(claimsJws);
+        return invokeRealEstateService.getEstateOwner(request, username);
     }
 
     @Override

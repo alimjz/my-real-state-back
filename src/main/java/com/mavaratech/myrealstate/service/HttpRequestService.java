@@ -1,6 +1,7 @@
 package com.mavaratech.myrealstate.service;
 
 import com.mavaratech.myrealstate.config.PropertySource;
+import com.mavaratech.myrealstate.dto.EstateOwnerRequestDto;
 import com.mavaratech.myrealstate.exceptions.HttpInvocationException;
 import com.mavaratech.myrealstate.exceptions.RealStateException;
 import com.mavaratech.myrealstate.model.*;
@@ -99,12 +100,13 @@ public class HttpRequestService {
         throw new HttpInvocationException(HTTP_RESPONSE_FAILED + exchange.getStatusCode());
     }
 
-    public EstateOwnersDsdpResponse getEstateOwners(EstateOwnerRequest request, String username){
+    public EstateOwnersDsdpResponse getEstateOwners(EstateOwnerRequestDto request, String username){
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         httpHeaders.add(X_AUTH_TOKEN,getToken(username));
+        EstateRequest estateRequest = estateOwnerRequestFactory(request);
 
-        HttpEntity<EstateOwnerRequest> entity = new HttpEntity<>(request,httpHeaders);
+        HttpEntity<EstateRequest> entity = new HttpEntity<>(estateRequest,httpHeaders);
         ResponseEntity<EstateOwnersDsdpResponse> exchange =
                 restTemplate.exchange(propertySource.getEstateOwnersUrl()+"/api/call/getEstateOwners?ver=1",
                         HttpMethod.POST, entity, EstateOwnersDsdpResponse.class);
@@ -112,6 +114,19 @@ public class HttpRequestService {
             return exchange.getBody();
         }
         throw new HttpInvocationException(HTTP_RESPONSE_FAILED + exchange.getStatusCode());
+    }
+
+    private static EstateRequest estateOwnerRequestFactory(EstateOwnerRequestDto request) {
+        EstateRequest estateRequest = new EstateRequest();
+        estateRequest.setRequestDateTime(request.getRequestDateTime());
+        estateRequest.setBasic(request.getBasic());
+        estateRequest.setReceiverCmsorganizationId(request.getReceiverCmsorganizationId());
+        estateRequest.setSecondary(request.getSecondary());
+        estateRequest.setUnitId(request.getUnitId());
+        estateRequest.setContainCessionInfoInResult(request.getContainCessionInfoInResult());
+        estateRequest.setSectionSSAACode(request.getSectionSSAACode());
+        estateRequest.setSubSectionSSAACode(request.getSubSectionSSAACode());
+        return estateRequest;
     }
 
     public ConfirmDocumentDsdpResponse confirmDocument(ConfirmDocumentDsdpRequest request, String username){

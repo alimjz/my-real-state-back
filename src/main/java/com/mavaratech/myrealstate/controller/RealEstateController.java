@@ -4,7 +4,7 @@ import com.mavaratech.myrealstate.dto.SabtResponseDto;
 import com.mavaratech.myrealstate.dto.ShareDto;
 import com.mavaratech.myrealstate.model.ConfirmDocumentDsdpRequest;
 import com.mavaratech.myrealstate.model.ConfirmDocumentDsdpResponse;
-import com.mavaratech.myrealstate.model.EstateOwnerRequest;
+import com.mavaratech.myrealstate.dto.EstateOwnerRequestDto;
 import com.mavaratech.myrealstate.model.Owners;
 import com.mavaratech.myrealstate.model.response.*;
 import com.mavaratech.myrealstate.model.share.ShareRequest;
@@ -23,6 +23,7 @@ import static com.mavaratech.myrealstate.config.RealEstateConstants.*;
 @RequestMapping("/api/v1/estate")
 public class RealEstateController {
 
+    public static final String NO_ESTATE_FOUND = "No Estate Found.";
     private final RealEstateHandler realEstateHandler;
 
     public RealEstateController(RealEstateHandler realEstateHandler) {
@@ -30,12 +31,12 @@ public class RealEstateController {
     }
 
     @GetMapping
-    public ResponseEntity<BaseResponseRealEstates> getRealEstateInfoByNationalId(@RequestHeader Map<String, String> headers) {
+    public ResponseEntity<QueryEstatesResponse> getRealEstateInfoByNationalId(@RequestHeader Map<String, String> headers) {
         List<SabtResponseDto> estates = realEstateHandler.getEstates(headers);
         if (estates.isEmpty()) {
             QueryEstatesResponse queryEstatesResponse = new QueryEstatesResponse();
-            queryEstatesResponse.setResultCode("1");
-            queryEstatesResponse.setResultDescription("No Estate Found.");
+            queryEstatesResponse.setResultCode(NOT_FOUND);
+            queryEstatesResponse.setResultDescription(NO_ESTATE_FOUND);
             queryEstatesResponse.setEstates(Collections.emptyList());
             return ResponseEntity.ok(queryEstatesResponse);
         }
@@ -52,9 +53,9 @@ public class RealEstateController {
         return ResponseEntity.ok(realEstateHandler.shareEstates(shareRequest, headers));
     }
 
-    @GetMapping("/share/from/{username}")
-    public ResponseEntity<BaseResponseRealEstates> querySharedEstates(@RequestHeader Map<String, String> headers, @PathVariable("username") String username) {
-        List<ShareDto> shareDtos = realEstateHandler.querySharedRecordByOwner(username, headers);
+    @GetMapping("/share/from")
+    public ResponseEntity<BaseResponseRealEstates> querySharedEstates(@RequestHeader Map<String, String> headers) {
+        List<ShareDto> shareDtos = realEstateHandler.querySharedRecordByOwner(headers);
         QueryShareEstatesResponse queryShareEstatesResponse = new QueryShareEstatesResponse();
         if (!shareDtos.isEmpty()){
             queryShareEstatesResponse.setResultCode("0");
@@ -68,10 +69,9 @@ public class RealEstateController {
         return ResponseEntity.ok(queryShareEstatesResponse);
     }
 
-    @GetMapping("/share/to/{username}")
-    public ResponseEntity<BaseResponseRealEstates> querySharedEstatesToMe(@RequestHeader Map<String, String> headers,
-                                                                          @PathVariable("username") String username) {
-        List<ShareDto> shareDtos = realEstateHandler.querySharedRecordToMe(username, headers);
+    @GetMapping("/share/to")
+    public ResponseEntity<BaseResponseRealEstates> querySharedEstatesToMe(@RequestHeader Map<String, String> headers) {
+        List<ShareDto> shareDtos = realEstateHandler.querySharedRecordToMe(headers);
         QueryShareEstatesResponse queryShareEstatesResponse = new QueryShareEstatesResponse();
         if (!shareDtos.isEmpty()) {
             queryShareEstatesResponse.setResultCode(SUCCESS_CODE);
@@ -90,7 +90,7 @@ public class RealEstateController {
 
     @GetMapping("/owners")
     public ResponseEntity<EstateOwnerResponseDto> getEstateOwners(@RequestHeader Map<String, String> headers,
-                                                                  @RequestBody EstateOwnerRequest request) {
+                                                                  @RequestBody EstateOwnerRequestDto request) {
         List<Owners> estateOwners = realEstateHandler.getEstateOwners(request, headers);
 
         if (estateOwners.isEmpty()) {
