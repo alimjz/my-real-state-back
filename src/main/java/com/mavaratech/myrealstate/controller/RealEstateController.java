@@ -41,8 +41,8 @@ public class RealEstateController {
             return ResponseEntity.ok(queryEstatesResponse);
         }
         QueryEstatesResponse baseResponseRealEstates = new QueryEstatesResponse();
-        baseResponseRealEstates.setResultCode("0");
-        baseResponseRealEstates.setResultDescription("Success full.");
+        baseResponseRealEstates.setResultCode(SUCCESS_CODE);
+        baseResponseRealEstates.setResultDescription(SUCCESSFULL);
         baseResponseRealEstates.setEstates(estates);
         return ResponseEntity.ok(baseResponseRealEstates);
     }
@@ -58,8 +58,8 @@ public class RealEstateController {
         List<ShareDto> shareDtos = realEstateHandler.querySharedRecordByOwner(headers);
         QueryShareEstatesResponse queryShareEstatesResponse = new QueryShareEstatesResponse();
         if (!shareDtos.isEmpty()){
-            queryShareEstatesResponse.setResultCode("0");
-            queryShareEstatesResponse.setResultDescription("Successfully shared.");
+            queryShareEstatesResponse.setResultCode(SUCCESS_CODE);
+            queryShareEstatesResponse.setResultDescription(SUCCESSFULL);
             queryShareEstatesResponse.setShareDtos(shareDtos);
             return ResponseEntity.ok(queryShareEstatesResponse);
         }
