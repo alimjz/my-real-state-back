@@ -11,6 +11,7 @@ public class RealEstateConstants {
     public static final String NO_RECORD_FOUND = "No Record Found.";
     public static final String INVALID_INPUTS = "Invalid Inputs.";
     public static final String RECORD_ALREADY_EXIST = "Record Already Exist.";
+    public static final String NO_ESTATE_FOUND = "No Estate Found.";
 
     public static final String SUCCESS_CODE = "0";
     public static final String NOT_FOUND = "1";

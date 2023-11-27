@@ -1,14 +1,18 @@
 package com.mavaratech.myrealstate.service;
 
 import com.google.common.cache.Cache;
-import com.mavaratech.myrealstate.dto.SabtResponseDto;
+import com.mavaratech.myrealstate.dto.EstateByNationalIdQueryResponse;
 import com.mavaratech.myrealstate.dto.ShareDto;
 import com.mavaratech.myrealstate.exceptions.InvalidTokenException;
-import com.mavaratech.myrealstate.model.ConfirmDocumentDsdpRequest;
-import com.mavaratech.myrealstate.model.ConfirmDocumentDsdpResponse;
+import com.mavaratech.myrealstate.model.GetEstateDetailRequest;
+import com.mavaratech.myrealstate.model.confirm.GetEstatePropertiesRequest;
+import com.mavaratech.myrealstate.model.confirm.GetEstatePropertiesDsdpResponse;
 import com.mavaratech.myrealstate.dto.EstateOwnerRequestDto;
 import com.mavaratech.myrealstate.model.Owners;
+import com.mavaratech.myrealstate.model.mappic.EstateMapPicBaseResponse;
+import com.mavaratech.myrealstate.model.mappic.EstatePicRequest;
 import com.mavaratech.myrealstate.model.response.BaseResponseRealEstates;
+import com.mavaratech.myrealstate.model.response.GetEstateDetailResponse;
 import com.mavaratech.myrealstate.model.share.ShareEntity;
 import com.mavaratech.myrealstate.model.share.ShareRequest;
 import com.mavaratech.myrealstate.repository.ShareEstateRepository;
@@ -27,6 +31,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.mavaratech.myrealstate.config.RealEstateConstants.*;
+import static com.mavaratech.myrealstate.util.EntityFactory.shareEntityFactory;
 
 @Service
 public class RealEstateHandlerImpl implements RealEstateHandler {
@@ -51,7 +56,7 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
         this.shareToCache = shareToCache;
     }
 
-    public List<SabtResponseDto> getEstates(Map<String, String> header) {
+    public List<EstateByNationalIdQueryResponse> getEstates(Map<String, String> header) {
         LOGGER.debug("Get Estates Header is : {}", header);
         String token = header.get(HttpHeaders.AUTHORIZATION.toLowerCase());
         Jws<Claims> claimsJws = tokenService.verifyToken(token);
@@ -78,21 +83,11 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
             baseResponseRealEstates.setResultDescription(RECORD_ALREADY_EXIST);
             return baseResponseRealEstates;
         }
-        ShareEntity shareEntity = new ShareEntity();
-        shareEntity.setBasic(shareRequest.getBasic());
-        shareEntity.setSecondary(shareRequest.getSecondary());
-        shareEntity.setShareFrom(userFrom);
-        shareEntity.setShareTo(shareRequest.getShareTo());
-        shareEntity.setFromDate(shareRequest.getFromDate());
-        shareEntity.setToDate(shareRequest.getToDate());
-        shareEntity.setPhoneNumber(shareRequest.getPhoneNumber());
-        shareEntity.setHasEstateElectronicNoteNo(shareRequest.isHasEstateElectronicNoteNo());
-        shareEntity.setUnitName(shareRequest.getUnitName());
-        shareEntity.setShareId(shareEntity.getShareId());
-        shareEntity.setCreatedAt(LocalDateTime.now());
+        ShareEntity shareEntity = shareEntityFactory(shareRequest, userFrom);
         shareEstateRepository.save(shareEntity);
         return new BaseResponseRealEstates(SUCCESS_CODE, SUCCESSFULLY_SHARED);
     }
+
 
     @Override
     public List<ShareDto> querySharedRecordByOwner(Map<String, String> headers) {
@@ -107,9 +102,12 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
                 allByShareFrom = shareEstateRepository.findAllByShareFromAndToDateAfterOrderByToDateDesc(username, LocalDateTime.now());
                 shareFromCache.put(username, allByShareFrom);
             }
-            return allByShareFrom.stream().map(shareEntity -> new ShareDto(shareEntity.getShareFrom(), shareEntity.getShareTo(), shareEntity.isHasEstateElectronicNoteNo()
-                    , shareEntity.getUnitName(), shareEntity.getBasic(), shareEntity.getSecondary(), shareEntity.getPhoneNumber(),
-                    shareEntity.getFromDate(), shareEntity.getToDate())).collect(Collectors.toList());
+            return allByShareFrom.stream().map(shareEntity -> new ShareDto(shareEntity.getShareFrom(),
+                    shareEntity.getShareTo(), shareEntity.isHasEstateElectronicNoteNo()
+                    , shareEntity.getUnitName(), shareEntity.getBasic(), shareEntity.getSecondary(),
+                    shareEntity.getSection(), shareEntity.getSubSection(),shareEntity.getUnitId(),
+                    shareEntity.getPhoneNumber(),shareEntity.getFromDate(), shareEntity.getToDate()))
+                    .collect(Collectors.toList());
         }
         throw new InvalidTokenException(INVALID_TOKEN);
 
@@ -127,9 +125,12 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
                 allByShareFrom = shareEstateRepository.findAllByShareToAndToDateAfterOrderByToDateDesc(username, LocalDateTime.now());
                 shareToCache.put(username, allByShareFrom);
             }
-            return allByShareFrom.stream().map(shareEntity -> new ShareDto(shareEntity.getShareFrom(), shareEntity.getShareTo(), shareEntity.isHasEstateElectronicNoteNo()
-                    , shareEntity.getUnitName(), shareEntity.getBasic(), shareEntity.getSecondary(), shareEntity.getPhoneNumber(),
-                    shareEntity.getFromDate(), shareEntity.getToDate())).collect(Collectors.toList());
+            return allByShareFrom.stream().map(shareEntity -> new ShareDto(shareEntity.getShareFrom(),
+                    shareEntity.getShareTo(), shareEntity.isHasEstateElectronicNoteNo()
+                    , shareEntity.getUnitName(), shareEntity.getBasic(), shareEntity.getSecondary(),
+                    shareEntity.getSection(),  shareEntity.getSubSection(),shareEntity.getUnitId(),
+                    shareEntity.getPhoneNumber(),shareEntity.getFromDate(), shareEntity.getToDate()))
+                    .collect(Collectors.toList());
         }
         throw new InvalidTokenException(INVALID_TOKEN);
     }
@@ -143,9 +144,23 @@ public class RealEstateHandlerImpl implements RealEstateHandler {
     }
 
     @Override
-    public ConfirmDocumentDsdpResponse confirmDocument(ConfirmDocumentDsdpRequest request, Map<String, String> headers) {
+    public GetEstatePropertiesDsdpResponse getEstateBaseProperties(GetEstatePropertiesRequest request, Map<String, String> headers) {
         String token = headers.get(HttpHeaders.AUTHORIZATION.toLowerCase());
         Jws<Claims> claimsJws = tokenService.verifyToken(token);
-        return invokeRealEstateService.confirmDocumentation(request, TokenService.extractUsernameClaim(claimsJws));
+        return invokeRealEstateService.getEstateProperties(request, TokenService.extractUsernameClaim(claimsJws));
+    }
+
+    @Override
+    public GetEstateDetailResponse getEstateDetailResponse(GetEstateDetailRequest request, Map<String, String> headers){
+        String token = headers.get(HttpHeaders.AUTHORIZATION.toLowerCase());
+        Jws<Claims> claimsJws = tokenService.verifyToken(token);
+        return invokeRealEstateService.getEstateDetailResponse(request,TokenService.extractUsernameClaim(claimsJws));
+    }
+
+    @Override
+    public EstateMapPicBaseResponse getEstateMapPic(EstatePicRequest request, Map<String, String> headers){
+        String token = headers.get(HttpHeaders.AUTHORIZATION.toLowerCase());
+        Jws<Claims> claimsJws = tokenService.verifyToken(token);
+        return invokeRealEstateService.getEstateMapPic(request,TokenService.extractUsernameClaim(claimsJws));
     }
 }

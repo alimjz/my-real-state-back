@@ -21,6 +21,12 @@ public class ShareEntity {
     private String basic;
     @Column(name = "SECONDARY_PELAK")
     private String secondary;
+    @Column(name = "SECTION")
+    private String section;
+    @Column(name = "SUB_SECTION")
+    private String subSection;
+    @Column(name = "UNIT_ID")
+    private String unitId;
     @Column(name = "PHONE_NUMBER")
     private String phoneNumber;
     @Column(name = "SHARE_FROM_DATE")
@@ -30,10 +36,9 @@ public class ShareEntity {
     @Column(name = "CREATED_TIME")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public ShareEntity() {
-    }
+    public ShareEntity(){}
 
-    public ShareEntity(Long shareId, String shareFrom, String shareTo, boolean hasEstateElectronicNoteNo, String unitName, String basic, String secondary, String phoneNumber, LocalDateTime fromDate, LocalDateTime toDate) {
+    public ShareEntity(Long shareId, String shareFrom, String shareTo, boolean hasEstateElectronicNoteNo, String unitName, String basic, String secondary, String section, String subSection, String unitId, String phoneNumber, LocalDateTime fromDate, LocalDateTime toDate, LocalDateTime createdAt) {
         this.shareId = shareId;
         this.shareFrom = shareFrom;
         this.shareTo = shareTo;
@@ -41,9 +46,37 @@ public class ShareEntity {
         this.unitName = unitName;
         this.basic = basic;
         this.secondary = secondary;
+        this.section = section;
+        this.subSection = subSection;
+        this.unitId = unitId;
         this.phoneNumber = phoneNumber;
         this.fromDate = fromDate;
         this.toDate = toDate;
+        this.createdAt = createdAt;
+    }
+
+    public String getSection() {
+        return section;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
+    }
+
+    public String getSubSection() {
+        return subSection;
+    }
+
+    public void setSubSection(String subSection) {
+        this.subSection = subSection;
+    }
+
+    public String getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(String unitId) {
+        this.unitId = unitId;
     }
 
     public Long getShareId() {

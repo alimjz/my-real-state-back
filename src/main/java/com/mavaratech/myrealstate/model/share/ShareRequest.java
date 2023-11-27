@@ -11,11 +11,38 @@ public class ShareRequest {
     private String unitName;
     private String basic;
     private String secondary;
-    private String username;
+    private String section;
+    private String subSection;
+    private String unitId;
     private String phoneNumber;
     private LocalDateTime fromDate;
     @FutureLocalDateTime(message = "To Date Should Be Greated Than Current Time.")
     private LocalDateTime toDate;
+
+
+    public String getSection() {
+        return section;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
+    }
+
+    public String getSubSection() {
+        return subSection;
+    }
+
+    public void setSubSection(String subSection) {
+        this.subSection = subSection;
+    }
+
+    public String getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(String unitId) {
+        this.unitId = unitId;
+    }
 
     public String getShareFrom() {
         return shareFrom;
@@ -65,13 +92,6 @@ public class ShareRequest {
         this.secondary = secondary;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
 
     public String getPhoneNumber() {
         return phoneNumber;

@@ -10,23 +10,51 @@ public class ShareDto {
     private String unitName;
     private String basic;
     private String secondary;
+    private String section;
+    private String subSection;
+    private String unitId;
     private String phoneNumber;
     private LocalDateTime fromDate;
     private LocalDateTime toDate;
 
-    public ShareDto() {
-    }
-
-    public ShareDto(String shareFrom, String shareTo, boolean hasEstateElectronicNoteNo, String unitName, String basic, String secondary, String phoneNumber, LocalDateTime fromDate, LocalDateTime toDate) {
+    public ShareDto(){}
+    public ShareDto(String shareFrom, String shareTo, boolean hasEstateElectronicNoteNo, String unitName, String basic, String secondary, String section, String subSection, String unitId, String phoneNumber, LocalDateTime fromDate, LocalDateTime toDate) {
         this.shareFrom = shareFrom;
         this.shareTo = shareTo;
         this.hasEstateElectronicNoteNo = hasEstateElectronicNoteNo;
         this.unitName = unitName;
         this.basic = basic;
         this.secondary = secondary;
+        this.section = section;
+        this.subSection = subSection;
+        this.unitId = unitId;
         this.phoneNumber = phoneNumber;
         this.fromDate = fromDate;
         this.toDate = toDate;
+    }
+
+    public String getSection() {
+        return section;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
+    }
+
+    public String getSubSection() {
+        return subSection;
+    }
+
+    public void setSubSection(String subSection) {
+        this.subSection = subSection;
+    }
+
+    public String getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(String unitId) {
+        this.unitId = unitId;
     }
 
     public String getShareFrom() {

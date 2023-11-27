@@ -1,5 +1,6 @@
 package com.mavaratech.myrealstate.controller;
 
+import com.mavaratech.myrealstate.exceptions.HttpInvocationException;
 import com.mavaratech.myrealstate.exceptions.InvalidTokenException;
 import com.mavaratech.myrealstate.model.response.BadRequestResponse;
 import com.mavaratech.myrealstate.model.response.BaseResponseRealEstates;
@@ -20,7 +21,13 @@ import static com.mavaratech.myrealstate.config.RealEstateConstants.*;
 @RestControllerAdvice
 public class RealStateAdvicer{
 
-
+    @ExceptionHandler(HttpInvocationException.class)
+    public ResponseEntity<BadRequestResponse> httpCallExceptionHandle(RuntimeException ex, WebRequest request) {
+        BadRequestResponse unAuthorized = new BadRequestResponse();
+        unAuthorized.setResultCode("5");
+        unAuthorized.setResultDescription(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(unAuthorized);
+    }
 
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<BadRequestResponse> handleConflict(RuntimeException ex, WebRequest request) {

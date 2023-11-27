@@ -1,53 +1,19 @@
-package com.mavaratech.myrealstate.model;
+package com.mavaratech.myrealstate.model.jointelement;
 
 import java.util.List;
 
-public class RealEstateDsdpResponse {
+public class GetEstatesJointElementDsdpResponse {
     private String responseNo;
     private String responseDateTime;
-    private String pagesCount;
     private String ApiGw_Code;
     private String requestDateTime;
     private String httpStatus;
     private String errorMessage;
-
     private String ResponseDesc;
     private String successful;
     private String ResponseType;
     private String httpStatusCode;
-    private List<State> estateList;
-
-    public String getSuccessful() {
-        return successful;
-    }
-
-    public void setSuccessful(String successful) {
-        this.successful = successful;
-    }
-
-    public String getResponseType() {
-        return ResponseType;
-    }
-
-    public void setResponseType(String responseType) {
-        ResponseType = responseType;
-    }
-
-    public String getHttpStatusCode() {
-        return httpStatusCode;
-    }
-
-    public void setHttpStatusCode(String httpStatusCode) {
-        this.httpStatusCode = httpStatusCode;
-    }
-
-    public String getResponseDesc() {
-        return ResponseDesc;
-    }
-
-    public void setResponseDesc(String responseDesc) {
-        ResponseDesc = responseDesc;
-    }
+    private List<JointElement> jointElements;
 
     public String getResponseNo() {
         return responseNo;
@@ -63,14 +29,6 @@ public class RealEstateDsdpResponse {
 
     public void setResponseDateTime(String responseDateTime) {
         this.responseDateTime = responseDateTime;
-    }
-
-    public String getPagesCount() {
-        return pagesCount;
-    }
-
-    public void setPagesCount(String pagesCount) {
-        this.pagesCount = pagesCount;
     }
 
     public String getApiGw_Code() {
@@ -105,11 +63,43 @@ public class RealEstateDsdpResponse {
         this.errorMessage = errorMessage;
     }
 
-    public List<State> getEstateList() {
-        return estateList;
+    public String getResponseDesc() {
+        return ResponseDesc;
     }
 
-    public void setEstateList(List<State> estateList) {
-        this.estateList = estateList;
+    public void setResponseDesc(String responseDesc) {
+        ResponseDesc = responseDesc;
+    }
+
+    public String getSuccessful() {
+        return successful;
+    }
+
+    public void setSuccessful(String successful) {
+        this.successful = successful;
+    }
+
+    public String getResponseType() {
+        return ResponseType;
+    }
+
+    public void setResponseType(String responseType) {
+        ResponseType = responseType;
+    }
+
+    public String getHttpStatusCode() {
+        return httpStatusCode;
+    }
+
+    public void setHttpStatusCode(String httpStatusCode) {
+        this.httpStatusCode = httpStatusCode;
+    }
+
+    public List<JointElement> getJointElements() {
+        return jointElements;
+    }
+
+    public void setJointElements(List<JointElement> jointElements) {
+        this.jointElements = jointElements;
     }
 }

@@ -3,8 +3,14 @@ package com.mavaratech.myrealstate.service;
 import com.mavaratech.myrealstate.config.PropertySource;
 import com.mavaratech.myrealstate.dto.EstateOwnerRequestDto;
 import com.mavaratech.myrealstate.exceptions.HttpInvocationException;
-import com.mavaratech.myrealstate.exceptions.RealStateException;
 import com.mavaratech.myrealstate.model.*;
+import com.mavaratech.myrealstate.model.confirm.GetEstatePropertiesRequest;
+import com.mavaratech.myrealstate.model.confirm.GetEstatePropertiesDsdpResponse;
+import com.mavaratech.myrealstate.model.jointelement.GetEstatesJointElementDsdpResponse;
+import com.mavaratech.myrealstate.model.jointelement.GetEstatesJointElementRequest;
+import com.mavaratech.myrealstate.model.mappic.EstateMapPicDsdpRequest;
+import com.mavaratech.myrealstate.model.mappic.EstateMapPicDsdpResponse;
+import com.mavaratech.myrealstate.model.mappic.EstatePicRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -21,6 +27,7 @@ import java.io.ObjectOutputStream;
 
 import static com.mavaratech.myrealstate.config.RealEstateConstants.HTTP_RESPONSE_FAILED;
 import static com.mavaratech.myrealstate.config.RealEstateConstants.X_AUTH_TOKEN;
+import static com.mavaratech.myrealstate.util.RequestFactory.estateOwnerRequestFactory;
 
 @Service
 public class HttpRequestService {
@@ -48,40 +55,35 @@ public class HttpRequestService {
         return byteArrayOutputStream.toByteArray().length;
     }
 
-    public final ResponseEntity<RealEstateDsdpResponse> invokeSabtDsdp(String username) {
+    public final RealEstateDsdpResponse getEstateListByNationalityCode(String username,String token) {
         try {
 
             RealEstateDsdpRequest request = new RealEstateDsdpRequest(username);
-            HttpHeaders httpHeaders = new HttpHeaders();
-            String token = getToken(username);
             if (username.equals("1111111111")) {
                 request.setNationalityCode("0051369699");
 //                request.setNationalityCode("2050534205");
             }
+            HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add(X_AUTH_TOKEN, token);
             httpHeaders.add(HttpHeaders.AUTHORIZATION.toLowerCase(), token);
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
             httpHeaders.setContentLength(calculateContentLength(request));
             HttpEntity<RealEstateDsdpRequest> requestEntity = new HttpEntity<>(request, httpHeaders);
-            return restTemplate.exchange(propertySource.getDsdpUrl()+"/api/call/GetEstateListByNationalityCode?ver=1", HttpMethod.POST, requestEntity, RealEstateDsdpResponse.class);
+
+            ResponseEntity<RealEstateDsdpResponse> exchange = restTemplate.exchange(propertySource.getDsdpUrl() + "/api/call/GetEstateListByNationalityCode?ver=1",
+                    HttpMethod.POST, requestEntity, RealEstateDsdpResponse.class);
+            if (exchange.getStatusCode().is2xxSuccessful() && exchange.getBody() != null) {
+                return exchange.getBody();
+            }
         } catch (RestClientException e) {
             LOGGER.error("Error in Calling SabtAsnad: {}", e.getMessage());
-            throw new RealStateException("Error invoking SabtAsnad", e);
         }
+        throw new HttpInvocationException("Error invoking GetEstateNationalityCode");
     }
 
-    private void getOtp() {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        LinkedMultiValueMap<String, String> urlVariables = new LinkedMultiValueMap<>();
-        urlVariables.add("client_id", "superapp");
-        urlVariables.add("username", "0010391428");
-        urlVariables.add("client_secret", "h2VW8S0hFmkLwrsQeygYoSkPwmPLTAr3");
-        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(urlVariables, httpHeaders);
-        restTemplate.exchange(propertySource.getOtpUrl()+"/realms/superapp/otp/generate/username", HttpMethod.POST, entity, OtpResponse.class);
-    }
 
-    private String getToken(String username) {
+
+    public String getToken(String username) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -101,45 +103,76 @@ public class HttpRequestService {
     }
 
     public EstateOwnersDsdpResponse getEstateOwners(EstateOwnerRequestDto request, String username){
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        httpHeaders.add(X_AUTH_TOKEN,getToken(username));
-        EstateRequest estateRequest = estateOwnerRequestFactory(request);
-
-        HttpEntity<EstateRequest> entity = new HttpEntity<>(estateRequest,httpHeaders);
         ResponseEntity<EstateOwnersDsdpResponse> exchange =
-                restTemplate.exchange(propertySource.getEstateOwnersUrl()+"/api/call/getEstateOwners?ver=1",
-                        HttpMethod.POST, entity, EstateOwnersDsdpResponse.class);
+                null;
+        try {
+            HttpHeaders httpHeaders = createHeaders(getToken(username));
+            EstateRequest estateRequest = estateOwnerRequestFactory(request);
+
+            HttpEntity<EstateRequest> entity = new HttpEntity<>(estateRequest,httpHeaders);
+            exchange = restTemplate.exchange(propertySource.getDsdpUrl()+"/api/call/getEstateOwners?ver=1",
+                    HttpMethod.POST, entity, EstateOwnersDsdpResponse.class);
+            if (exchange.getStatusCode().is2xxSuccessful() && exchange.getBody() != null) {
+                return exchange.getBody();
+            }
+            throw new HttpInvocationException("Error in GetEstateNationalityCode Service.");
+        } catch (RestClientException e) {
+            LOGGER.error("Error in Calling Estate Owners: {}",e.getMessage());
+        }
+        throw new HttpInvocationException(HTTP_RESPONSE_FAILED + exchange.getStatusCode());
+    }
+
+
+
+    public GetEstatePropertiesDsdpResponse getEstateProperties(GetEstatePropertiesRequest request, String token){
+        try {
+            HttpHeaders httpHeaders = createHeaders(token);
+
+            HttpEntity<GetEstatePropertiesRequest> entity = new HttpEntity<>(request, httpHeaders);
+            ResponseEntity<GetEstatePropertiesDsdpResponse> exchange = restTemplate.exchange(
+                    propertySource.getDsdpUrl() + "/api/call/getEstateProperties?ver=1",
+                    HttpMethod.POST, entity, GetEstatePropertiesDsdpResponse.class);
+            if (exchange.getStatusCode().is2xxSuccessful() && exchange.getBody() != null){
+                return exchange.getBody();
+            }
+            throw new HttpInvocationException(HTTP_RESPONSE_FAILED + exchange.getStatusCode());
+        } catch (RestClientException e) {
+            LOGGER.error("Error in Invoking EstateProperties : {}",e.getMessage());
+        }
+        throw new HttpInvocationException(HTTP_RESPONSE_FAILED);
+    }
+
+    public GetEstatesJointElementDsdpResponse getEstateJointElement(GetEstatesJointElementRequest request, String token){
+        HttpHeaders httpHeaders = createHeaders(token);
+
+        HttpEntity<GetEstatesJointElementRequest> entity = new HttpEntity<>(request, httpHeaders);
+        ResponseEntity<GetEstatesJointElementDsdpResponse> exchange =
+                restTemplate.exchange(propertySource.getDsdpUrl() + "/api/call/getEstateJointElements?ver=1",
+                HttpMethod.POST, entity, GetEstatesJointElementDsdpResponse.class);
+        if (exchange.getStatusCode().is2xxSuccessful() && exchange.getBody() != null){
+            return exchange.getBody();
+        }
+        throw new HttpInvocationException(HTTP_RESPONSE_FAILED + exchange.getStatusCode());
+    }
+
+    public EstateMapPicDsdpResponse getEstateMapPic(EstateMapPicDsdpRequest request, String token){
+        HttpHeaders httpHeaders = createHeaders(token);
+
+        HttpEntity<EstateMapPicDsdpRequest> entity = new HttpEntity<>(request,httpHeaders);
+        ResponseEntity<EstateMapPicDsdpResponse> exchange = restTemplate.exchange(propertySource.getDsdpUrl() + "/api/call/getEstateMapPic?ver=1", HttpMethod.POST, entity, EstateMapPicDsdpResponse.class);
+
         if (exchange.getStatusCode().is2xxSuccessful() && exchange.getBody() != null) {
             return exchange.getBody();
         }
         throw new HttpInvocationException(HTTP_RESPONSE_FAILED + exchange.getStatusCode());
     }
 
-    private static EstateRequest estateOwnerRequestFactory(EstateOwnerRequestDto request) {
-        EstateRequest estateRequest = new EstateRequest();
-        estateRequest.setRequestDateTime(request.getRequestDateTime());
-        estateRequest.setBasic(request.getBasic());
-        estateRequest.setReceiverCmsorganizationId(request.getReceiverCmsorganizationId());
-        estateRequest.setSecondary(request.getSecondary());
-        estateRequest.setUnitId(request.getUnitId());
-        estateRequest.setContainCessionInfoInResult(request.getContainCessionInfoInResult());
-        estateRequest.setSectionSSAACode(request.getSectionSSAACode());
-        estateRequest.setSubSectionSSAACode(request.getSubSectionSSAACode());
-        return estateRequest;
-    }
-
-    public ConfirmDocumentDsdpResponse confirmDocument(ConfirmDocumentDsdpRequest request, String username){
+    private static HttpHeaders createHeaders(String token) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        httpHeaders.add(X_AUTH_TOKEN,getToken(username));
-
-        HttpEntity<ConfirmDocumentDsdpRequest> entity = new HttpEntity<>(request, httpHeaders);
-        ResponseEntity<ConfirmDocumentDsdpResponse> exchange = restTemplate.exchange(propertySource.getConfirmDocumentUrl() + "/api/call/confirmDocument?ver=1",
-                HttpMethod.POST, entity, ConfirmDocumentDsdpResponse.class);
-        if (exchange.getStatusCode().is2xxSuccessful() && exchange.getBody() != null){
-            return exchange.getBody();
-        }
-        throw new HttpInvocationException(HTTP_RESPONSE_FAILED + exchange.getStatusCode());
+        httpHeaders.add(X_AUTH_TOKEN, token);
+        return httpHeaders;
     }
+
+
 }
